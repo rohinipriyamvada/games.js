@@ -1,12 +1,16 @@
 const WIDTH = 40;
 const HEIGHT = 25;
 const FOOD = "🍎";
-const BUG = "🐛";
+const BUG = "🪲";
 
-function repeat(string, times) {
+function repeat(string, times, specialChar, specialCharPos) {
   let repeatedString = '';
 
-  for (let noOfTimes = 0; noOfTimes < times; noOfTimes++) {
+  for (let noOfTimes = 1; noOfTimes <= times; noOfTimes++) {
+    if (noOfTimes % specialCharPos === 0 && specialChar !== undefined) {
+      repeatedString += specialChar;
+      continue;
+    }
     repeatedString += string;
   }
   return repeatedString;
@@ -16,16 +20,16 @@ function joinBorders(startBorder, string, endBorder) {
   return startBorder + string + endBorder;
 }
 
-function createTop(length) {
-  return joinBorders('┏', repeat('━', length), '┓');
+function createTop(length, specialChar, specialCharPos) {
+  return joinBorders('┏', repeat('━', length, specialChar, specialCharPos), '┓');
 }
 
-function createMiddle(length) {
-  return joinBorders('┣', repeat('━', length), '┫');
+function createMiddle(length, specialChar, specialCharPos) {
+  return joinBorders('┣', repeat('━', length, specialChar, specialCharPos), '┫');
 }
 
-function createBottom(length) {
-  return joinBorders('┗', repeat('━', length), '┛');
+function createBottom(length, specialChar, specialCharPos) {
+  return joinBorders('┗', repeat('━', length, specialChar, specialCharPos), '┛');
 }
 // convert these functions into switch
 
@@ -46,8 +50,8 @@ function addIcons(bugPos, foodPos, index) {
 }
 
 function createBoard(snakePlaceX, snakePlaceY, foodPlaceX, foodPlaceY) {
-  console.log(createTop(WIDTH + 4));
-  console.log(createMiddle(WIDTH + 4));
+  console.log(createTop((WIDTH + 4), '┳', 2));
+  console.log(createMiddle((WIDTH + 4), '┻', 2));
 
   const bugPos = createIndex(snakePlaceX, snakePlaceY);
   const foodPos = createIndex(foodPlaceX, foodPlaceY);
@@ -57,13 +61,13 @@ function createBoard(snakePlaceX, snakePlaceY, foodPlaceX, foodPlaceY) {
     char += addIcons(bugPos, foodPos, counter);
 
     if (counter % WIDTH === 0) {
-      console.log(joinBorders("┃ ┃", char, "┃ ┃"));
+      console.log(joinBorders("┃━┃", char, "┃━┃"));
       char = '';
     }
   }
 
-  console.log(createMiddle(WIDTH + 4));
-  console.log(createBottom(WIDTH + 4));
+  console.log(createMiddle((WIDTH + 4), '┳', 2));
+  console.log(createBottom((WIDTH + 4), '┻', 2));
 }
 
 function moveLeft(Xposition) {
@@ -96,7 +100,7 @@ function displayScore(score) {
   console.log("Your current score is: ", score);
 }
 
-function start(bugPosX, bugPosY, foodPlaceX, foodPlaceY) {
+function play(bugPosX, bugPosY, foodPlaceX, foodPlaceY) {
   let playerScore = 0;
 
 
@@ -139,14 +143,14 @@ function randomInt(range) {
   return Math.ceil(Math.random() * range);
 }
 
-function game() {
+function gameStart() {
   const snakePlaceX = randomInt(WIDTH - 4);
   const snakePlaceY = randomInt(HEIGHT - 4);
 
   const foodPlaceX = randomInt(WIDTH - 4);
   const foodPlaceY = randomInt(HEIGHT - 4);
 
-  console.log(start(snakePlaceX, snakePlaceY, foodPlaceX, foodPlaceY));
+  console.log(play(snakePlaceX, snakePlaceY, foodPlaceX, foodPlaceY));
 }
 
-game();
+gameStart();
