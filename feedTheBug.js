@@ -102,7 +102,9 @@ function displayScore(score) {
 
 function play(bugPosX, bugPosY, foodPlaceX, foodPlaceY) {
   let playerScore = 0;
-
+  const limit1 = 1;
+  const limit2 = WIDTH - 2;
+  let num = 1;
 
   while (playerScore < 10) {
     console.clear();
@@ -111,11 +113,21 @@ function play(bugPosX, bugPosY, foodPlaceX, foodPlaceY) {
       return "OOPS!!! YOU HAVE HIT WALLS AND DIED!!!";
     }
 
+    if (foodPlaceX === limit1) {
+      num = 1;
+    }
+
+    if (foodPlaceX === limit2) {
+      num = -1;
+    }
+
+    foodPlaceX += (1 * num);
+
     createBoard(bugPosX, bugPosY, foodPlaceX, foodPlaceY);
     displayScore(playerScore);
 
     const command = readInput();
-    switch (command) { // function
+    switch (command) {
       case 'a': bugPosX = moveLeft(bugPosX); break;
       case 'd': bugPosX = moveRight(bugPosX); break;
       case 'w': bugPosY = moveUp(bugPosY); break;
@@ -130,8 +142,8 @@ function play(bugPosX, bugPosY, foodPlaceX, foodPlaceY) {
     if (conditionOfXAxis && foodPlaceY === bugPosY) {
       playerScore++;
 
-      foodPlaceX = randomInt(WIDTH - 4);
-      foodPlaceY = randomInt(HEIGHT - 4);
+      foodPlaceX = generateRandomInt(WIDTH - 4);
+      foodPlaceY = generateRandomInt(HEIGHT - 4);
     }
 
   }
@@ -139,16 +151,16 @@ function play(bugPosX, bugPosY, foodPlaceX, foodPlaceY) {
   return "CONGRATULATIONS!! YOU HAVE COMPLETED THE GAME";
 }
 
-function randomInt(range) {
+function generateRandomInt(range) {
   return Math.ceil(Math.random() * range);
 }
 
 function gameStart() {
-  const snakePlaceX = randomInt(WIDTH - 4);
-  const snakePlaceY = randomInt(HEIGHT - 4);
+  const snakePlaceX = generateRandomInt(WIDTH - 4);
+  const snakePlaceY = generateRandomInt(HEIGHT - 4);
 
-  const foodPlaceX = randomInt(WIDTH - 4);
-  const foodPlaceY = randomInt(HEIGHT - 4);
+  const foodPlaceX = generateRandomInt(WIDTH - 4);
+  const foodPlaceY = generateRandomInt(HEIGHT - 4);
 
   console.log(play(snakePlaceX, snakePlaceY, foodPlaceX, foodPlaceY));
 }
