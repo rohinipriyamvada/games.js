@@ -3,14 +3,10 @@ const HEIGHT = 25;
 const FOOD = "🍎";
 const BUG = "🪲";
 
-function repeat(string, times, specialChar, specialCharPos) {
+function repeat(string, times) {
   let repeatedString = '';
 
   for (let noOfTimes = 1; noOfTimes <= times; noOfTimes++) {
-    if (noOfTimes % specialCharPos === 0 && specialChar !== undefined) {
-      repeatedString += specialChar;
-      continue;
-    }
     repeatedString += string;
   }
   return repeatedString;
@@ -20,18 +16,13 @@ function joinBorders(startBorder, string, endBorder) {
   return startBorder + string + endBorder;
 }
 
-function createTop(length, specialChar, specialCharPos) {
-  return joinBorders('┏', repeat('━', length, specialChar, specialCharPos), '┓');
+function createTop(length) {
+  return joinBorders('┏', repeat('━┳', length), '┓');
 }
 
-function createMiddle(length, specialChar, specialCharPos) {
-  return joinBorders('┣', repeat('━', length, specialChar, specialCharPos), '┫');
+function createBottom(length) {
+  return joinBorders('┗', repeat('━┻', length), '┛');
 }
-
-function createBottom(length, specialChar, specialCharPos) {
-  return joinBorders('┗', repeat('━', length, specialChar, specialCharPos), '┛');
-}
-// convert these functions into switch
 
 function createIndex(Xposition, Yposition) {
   return (Yposition * WIDTH) + Xposition;
@@ -50,8 +41,8 @@ function addIcons(bugPos, foodPos, index) {
 }
 
 function createBoard(snakePlaceX, snakePlaceY, foodPlaceX, foodPlaceY) {
-  console.log(createTop((WIDTH + 4), '┳', 2));
-  console.log(createMiddle((WIDTH + 4), '┻', 2));
+  console.log(createTop(22));
+  console.log(createBottom(22));
 
   const bugPos = createIndex(snakePlaceX, snakePlaceY);
   const foodPos = createIndex(foodPlaceX, foodPlaceY);
@@ -66,8 +57,8 @@ function createBoard(snakePlaceX, snakePlaceY, foodPlaceX, foodPlaceY) {
     }
   }
 
-  console.log(createMiddle((WIDTH + 4), '┳', 2));
-  console.log(createBottom((WIDTH + 4), '┻', 2));
+  console.log(createTop(22));
+  console.log(createBottom(22));
 }
 
 function moveLeft(Xposition) {
@@ -100,53 +91,60 @@ function displayScore(score) {
   console.log("Your current score is: ", score);
 }
 
+function hasHitBoundaries(bugPosX, bugPosY) {
+  return bugPosX === WIDTH || bugPosX < 0 || bugPosY === HEIGHT || bugPosY < 0;
+}
+
+function isBugNearbyFood(bugPosX, bugPosY, foodPlaceX, foodPlaceY) {
+  return ((foodPlaceX === bugPosX ||
+    foodPlaceX - 2 === bugPosX || foodPlaceX + 2 === bugPosX ||
+    foodPlaceX - 1 === bugPosX || foodPlaceX + 1 === bugPosX)
+    && foodPlaceY === bugPosY);
+}
+
+function moveX(command, bugPosX) {
+  switch (command) {
+    case 'a': bugPosX = moveLeft(bugPosX); break;
+    case 'd': bugPosX = moveRight(bugPosX);
+  }
+
+  return bugPosX;
+}
+
+function moveY(command, bugPosY) {
+  switch (command) {
+    case 'w': bugPosY = moveUp(bugPosY); break;
+    case 's': bugPosY = moveDown(bugPosY);
+  }
+
+  return bugPosY;
+}
+
 function play(bugPosX, bugPosY, foodPlaceX, foodPlaceY) {
   let playerScore = 0;
-  const limit1 = 1;
-  const limit2 = WIDTH - 2;
-  let num = 1;
 
   while (playerScore < 10) {
     console.clear();
 
-    if (bugPosX === WIDTH || bugPosX < 0 || bugPosY === HEIGHT || bugPosY < 0) {
+    if (hasHitBoundaries(bugPosX, bugPosY)) {
       return "OOPS!!! YOU HAVE HIT WALLS AND DIED!!!";
     }
-
-    if (foodPlaceX === limit1) {
-      num = 1;
-    }
-
-    if (foodPlaceX === limit2) {
-      num = -1;
-    }
-
-    foodPlaceX += (1 * num);
 
     createBoard(bugPosX, bugPosY, foodPlaceX, foodPlaceY);
     displayScore(playerScore);
 
     const command = readInput();
-    switch (command) {
-      case 'a': bugPosX = moveLeft(bugPosX); break;
-      case 'd': bugPosX = moveRight(bugPosX); break;
-      case 'w': bugPosY = moveUp(bugPosY); break;
-      case 's': bugPosY = moveDown(bugPosY); break;
-      default: console.log('Invalid input, Enter a valid input');
-    }
+    bugPosX = moveX(command, bugPosX);
+    bugPosY = moveY(command, bugPosY);
 
-    const conditionOfXAxis = foodPlaceX === bugPosX ||
-      foodPlaceX - 2 === bugPosX || foodPlaceX + 2 === bugPosX ||
-      foodPlaceX - 1 === bugPosX || foodPlaceX + 1 === bugPosX;
-
-    if (conditionOfXAxis && foodPlaceY === bugPosY) {
+    if (isBugNearbyFood(bugPosX, bugPosY, foodPlaceX, foodPlaceY)) {
       playerScore++;
 
       foodPlaceX = generateRandomInt(WIDTH - 4);
       foodPlaceY = generateRandomInt(HEIGHT - 4);
     }
-
   }
+
   displayScore(playerScore);
   return "CONGRATULATIONS!! YOU HAVE COMPLETED THE GAME";
 }
